@@ -1,0 +1,21 @@
+# Nuxt output
+.nuxt
+.output
+
+# Dependencies and logs
+node_modules
+*.log
+
+# Local environment and data
+.env
+data/*.sqlite
+data/*.sqlite-shm
+data/*.sqlite-wal
+
+# Editor and OS files
+.DS_Store
+.idea
+.vscode
+
+# Test output
+coverage
