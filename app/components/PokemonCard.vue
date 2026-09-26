@@ -6,9 +6,11 @@ const props = withDefaults(defineProps<{
   name: string
   details?: PokemonCardDetails
   mode?: 'browse' | 'collection'
+  isCollected?: boolean
 }>(), {
   details: undefined,
   mode: 'browse',
+  isCollected: false,
 })
 
 const emit = defineEmits<{
@@ -53,8 +55,11 @@ function selectCard(): void {
       v-if="mode === 'browse'"
       class="pokemon-card__surface"
       :to="`/pokedex/${name}`"
-      :aria-label="`View ${formatPokemonName(name)}'s Pokédex entry`"
+      :aria-label="isCollected
+        ? `View ${formatPokemonName(name)}'s Pokédex entry; already in your collection`
+        : `View ${formatPokemonName(name)}'s Pokédex entry`"
     >
+      <span v-if="isCollected" class="pokemon-card__collected" aria-hidden="true">✓</span>
       <div class="pokemon-card__image-wrap">
         <span v-if="isLoading" class="pokemon-card__skeleton" aria-hidden="true" />
         <img

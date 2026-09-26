@@ -12,9 +12,13 @@ const pokemon = useState<NamedApiResource[]>('pokemon-list', () => [])
 const totalPokemon = useState<number | null>('pokemon-total', () => null)
 const isLoading = ref(false)
 const loadError = ref('')
+const { pokemonCollection } = usePokemonCollection()
 
 const hasMorePokemon = computed(() => (
   totalPokemon.value === null || pokemon.value.length < totalPokemon.value
+))
+const collectedPokemonNames = computed(() => (
+  new Set(pokemonCollection.value.map(entry => entry.name))
 ))
 
 async function loadMorePokemon(): Promise<void> {
@@ -66,6 +70,7 @@ onMounted(() => {
         <div>
           <p class="eyebrow">National Pokédex</p>
           <h2 id="browse-title">Meet the Pokémon</h2>
+          <p class="collection-status-note">* A green checkmark indicates a Pokémon already in your collection.</p>
         </div>
         <p v-if="pokemon.length" class="result-count" aria-live="polite">
           Showing {{ pokemon.length }}{{ totalPokemon ? ` of ${totalPokemon}` : '' }}
@@ -77,6 +82,7 @@ onMounted(() => {
           v-for="entry in pokemon"
           :key="entry.name"
           :name="entry.name"
+          :is-collected="collectedPokemonNames.has(entry.name)"
         />
       </div>
 
