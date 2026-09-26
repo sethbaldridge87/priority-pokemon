@@ -129,7 +129,7 @@ h1, h2, h3 {
   }
 }
 
-.brand__mark, .button__pokeball, .empty-state__pokeball, .pokeball-loader {
+.brand__mark, .empty-state__pokeball, .pokeball-loader {
   position: relative;
   display: inline-block;
   overflow: hidden;
@@ -851,13 +851,6 @@ h1, h2, h3 {
 .button--catch {
   width: 100%;
   margin-top: 26px;
-}
-
-.button__pokeball {
-  width: 21px;
-  height: 21px;
-  color: white;
-  background: linear-gradient(to bottom, white 0 45%, currentColor 45% 55%, white 55% 100%);
 }
 
 .not-found {

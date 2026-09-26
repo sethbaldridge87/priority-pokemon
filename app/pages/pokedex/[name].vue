@@ -140,7 +140,6 @@ async function catchPokemon(): Promise<void> {
             </div>
 
             <button class="button button--catch" type="button" :disabled="isCatching" @click="catchPokemon">
-              <span class="button__pokeball" aria-hidden="true" />
               {{ isCatching ? 'Catching…' : `Catch ${formattedName}` }}
             </button>
             <p v-if="catchMessage" class="action-message action-message--success" role="status">{{ catchMessage }}</p>
