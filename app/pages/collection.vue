@@ -19,6 +19,15 @@ const detailsOpen = ref(false)
 const confirmationOpen = ref(false)
 const isReleasing = ref(false)
 const releaseError = ref('')
+const showShiny = ref(false)
+
+const displayedPokemonImage = computed(() => {
+  if (!selectedPokemon.value) return ''
+
+  return showShiny.value && selectedPokemon.value.shinyImage
+    ? selectedPokemon.value.shinyImage
+    : selectedPokemon.value.image
+})
 
 function cardDetails(pokemon: CapturedPokemon): PokemonCardDetails {
   return {
@@ -30,6 +39,7 @@ function cardDetails(pokemon: CapturedPokemon): PokemonCardDetails {
 
 function showPokemon(pokemon: CapturedPokemon): void {
   selectedPokemon.value = pokemon
+  showShiny.value = false
   detailsOpen.value = true
   confirmationOpen.value = false
   releaseError.value = ''
@@ -39,6 +49,7 @@ function closeDetails(): void {
   detailsOpen.value = false
   confirmationOpen.value = false
   releaseError.value = ''
+  showShiny.value = false
   selectedPokemon.value = null
 }
 
@@ -126,7 +137,12 @@ function releasePokemon(): void {
     >
       <div class="captured-details">
         <div class="captured-details__image">
-          <img :src="selectedPokemon.image" :alt="formatPokemonName(selectedPokemon.name)" width="240" height="240">
+          <img
+            :src="displayedPokemonImage"
+            :alt="showShiny ? `Shiny ${formatPokemonName(selectedPokemon.name)}` : formatPokemonName(selectedPokemon.name)"
+            width="240"
+            height="240"
+          >
         </div>
 
         <div class="captured-details__content">
@@ -148,15 +164,22 @@ function releasePokemon(): void {
             </ul>
           </div>
 
-          <a
-            v-if="selectedPokemon.shinyImage"
-            class="shiny-preview"
-            :href="selectedPokemon.shinyImage"
-            target="_blank"
-            rel="noreferrer"
-          >
-            View shiny image <span aria-hidden="true">↗</span>
-          </a>
+          <div v-if="selectedPokemon.shinyImage" class="shiny-toggle">
+            <div>
+              <strong>Shiny form</strong>
+              <span>Switch this Pokémon’s appearance.</span>
+            </div>
+            <button
+              class="toggle"
+              type="button"
+              role="switch"
+              :aria-checked="showShiny"
+              :aria-label="`${showShiny ? 'Hide' : 'Show'} shiny ${formatPokemonName(selectedPokemon.name)}`"
+              @click="showShiny = !showShiny"
+            >
+              <span />
+            </button>
+          </div>
         </div>
       </div>
 
