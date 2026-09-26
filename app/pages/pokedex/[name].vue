@@ -118,7 +118,6 @@ async function catchPokemon(): Promise<void> {
               <ul>
                 <li v-for="ability in pokemon.abilities" :key="ability.ability.name">
                   {{ formatPokemonName(ability.ability.name) }}
-                  <span v-if="ability.is_hidden">Hidden</span>
                 </li>
               </ul>
             </div>
