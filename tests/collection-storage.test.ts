@@ -24,6 +24,18 @@ const validCapture: NewCapturedPokemon = {
   shinyImage: 'https://example.com/shiny/1.png',
 }
 
+const squirtleCapture: NewCapturedPokemon = {
+  pokemonId: 7,
+  name: 'squirtle',
+  height: 5,
+  weight: 90,
+  abilities: ['torrent'],
+  types: ['water'],
+  dayCaught: '9.25.2026',
+  timeCaught: '3:50PM',
+  image: 'https://example.com/7.png',
+}
+
 class MemoryStorage {
   private readonly values = new Map<string, string>()
   failWrites = false
@@ -81,10 +93,10 @@ describe('browser collection storage', () => {
     expect(readPokemonCollection(new MemoryStorage())).toEqual([])
   })
 
-  it('persists duplicate catches with unique IDs and newest first', () => {
+  it('persists distinct catches with unique IDs and newest first', () => {
     const storage = new MemoryStorage()
     const first = addPokemonToCollection(storage, validCapture, BULBASAUR_CAPTURE_ID)
-    const second = addPokemonToCollection(storage, validCapture, SECOND_CAPTURE_ID)
+    const second = addPokemonToCollection(storage, squirtleCapture, SECOND_CAPTURE_ID)
 
     expect(first.capturedPokemon.captureId).toBe(BULBASAUR_CAPTURE_ID)
     expect(second.capturedPokemon.captureId).toBe(SECOND_CAPTURE_ID)
@@ -95,10 +107,20 @@ describe('browser collection storage', () => {
     expect(JSON.parse(storage.getRaw() ?? '{}')).toMatchObject({ version: 1 })
   })
 
+  it('rejects a Pokémon that is already in the collection', () => {
+    const storage = new MemoryStorage()
+    addPokemonToCollection(storage, validCapture, BULBASAUR_CAPTURE_ID)
+    const storedValue = storage.getRaw()
+
+    expect(() => addPokemonToCollection(storage, validCapture, SECOND_CAPTURE_ID))
+      .toThrow('Pokémon is already in the collection.')
+    expect(storage.getRaw()).toBe(storedValue)
+  })
+
   it('deletes only the selected capture', () => {
     const storage = new MemoryStorage()
     addPokemonToCollection(storage, validCapture, BULBASAUR_CAPTURE_ID)
-    addPokemonToCollection(storage, validCapture, SECOND_CAPTURE_ID)
+    addPokemonToCollection(storage, squirtleCapture, SECOND_CAPTURE_ID)
 
     const collection = removePokemonFromCollection(storage, BULBASAUR_CAPTURE_ID)
 
@@ -131,7 +153,7 @@ describe('browser collection storage', () => {
     const storedValue = storage.getRaw()
     storage.failWrites = true
 
-    expect(() => addPokemonToCollection(storage, validCapture, SECOND_CAPTURE_ID))
+    expect(() => addPokemonToCollection(storage, squirtleCapture, SECOND_CAPTURE_ID))
       .toThrow('Storage quota exceeded.')
     expect(storage.getRaw()).toBe(storedValue)
   })

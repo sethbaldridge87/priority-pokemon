@@ -13,6 +13,13 @@ export interface CollectionStorage {
   setItem: (key: string, value: string) => void
 }
 
+export function isPokemonInCollection(
+  pokemonCollection: readonly CapturedPokemon[],
+  pokemonId: number,
+): boolean {
+  return pokemonCollection.some(pokemon => pokemon.pokemonId === pokemonId)
+}
+
 export function readPokemonCollection(storage: CollectionStorage): CapturedPokemon[] {
   const storedValue = storage.getItem(COLLECTION_STORAGE_KEY)
 
@@ -41,13 +48,20 @@ export function addPokemonToCollection(
   pokemon: NewCapturedPokemon,
   captureId: string,
 ): { capturedPokemon: CapturedPokemon, pokemonCollection: CapturedPokemon[] } {
+  const validatedPokemon = newCapturedPokemonSchema.parse(pokemon)
+  const currentCollection = readPokemonCollection(storage)
+
+  if (isPokemonInCollection(currentCollection, validatedPokemon.pokemonId)) {
+    throw new Error('Pokémon is already in the collection.')
+  }
+
   const capturedPokemon = capturedPokemonSchema.parse({
     captureId,
-    ...newCapturedPokemonSchema.parse(pokemon),
+    ...validatedPokemon,
   })
   const pokemonCollection = [
     capturedPokemon,
-    ...readPokemonCollection(storage),
+    ...currentCollection,
   ]
 
   writePokemonCollection(storage, pokemonCollection)

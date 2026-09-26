@@ -2,6 +2,7 @@ import type { CapturedPokemon, NewCapturedPokemon } from '../../shared/types/pok
 import {
   addPokemonToCollection,
   COLLECTION_STORAGE_KEY,
+  isPokemonInCollection,
   readPokemonCollection,
   removePokemonFromCollection,
 } from '../utils/collection-storage'
@@ -51,6 +52,10 @@ export function usePokemonCollection() {
     return result.capturedPokemon
   }
 
+  function hasPokemon(pokemonId: number): boolean {
+    return isPokemonInCollection(pokemonCollection.value, pokemonId)
+  }
+
   function removePokemon(captureId: string): void {
     if (!import.meta.client) {
       throw new Error('The browser collection is only available on the client.')
@@ -83,6 +88,7 @@ export function usePokemonCollection() {
     loadError: readonly(loadError),
     loadCollection,
     addPokemon,
+    hasPokemon,
     removePokemon,
   }
 }

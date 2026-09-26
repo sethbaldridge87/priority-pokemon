@@ -18,9 +18,10 @@ const showShiny = ref(false)
 const isCatching = ref(false)
 const catchMessage = ref('')
 const catchError = ref('')
-const { addPokemon } = usePokemonCollection()
+const { addPokemon, hasPokemon } = usePokemonCollection()
 
 const formattedName = computed(() => formatPokemonName(pokemon.value?.name ?? pokemonName.value))
+const isAlreadyInCollection = computed(() => pokemon.value ? hasPokemon(pokemon.value.id) : false)
 const isGrassType = computed(() => pokemon.value ? hasPokemonType(pokemon.value, 'grass') : false)
 const canShowShiny = computed(() => Boolean(isGrassType.value && pokemon.value?.sprites.other.home.front_shiny))
 const displayedImage = computed(() => {
@@ -44,7 +45,7 @@ useSeoMeta({
 })
 
 function catchPokemon(): void {
-  if (!pokemon.value || isCatching.value) return
+  if (!pokemon.value || isCatching.value || isAlreadyInCollection.value) return
 
   isCatching.value = true
   catchMessage.value = ''
@@ -137,8 +138,13 @@ function catchPokemon(): void {
               </button>
             </div>
 
-            <button class="button button--catch" type="button" :disabled="isCatching" @click="catchPokemon">
-              {{ isCatching ? 'Catching…' : `Catch ${formattedName}` }}
+            <button
+              class="button button--catch"
+              type="button"
+              :disabled="isCatching || isAlreadyInCollection"
+              @click="catchPokemon"
+            >
+              {{ isAlreadyInCollection ? 'Already in Collection' : isCatching ? 'Catching…' : `Catch ${formattedName}` }}
             </button>
             <p v-if="catchMessage" class="action-message action-message--success" role="status">{{ catchMessage }}</p>
             <p v-if="catchError" class="action-message action-message--error" role="alert">{{ catchError }}</p>

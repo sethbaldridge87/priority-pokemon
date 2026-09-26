@@ -37,7 +37,7 @@ npm run preview    # preview the production build
 - `shared/schemas/collection.ts` validates captured and persisted Pokémon data.
 - `shared/` contains types, schemas, and pure utilities used throughout the application.
 
-The collection is stored under a versioned local-storage key. Duplicate catches are intentionally allowed, and every capture receives a UUID so a visitor can release one specific catch. Changes made in another open tab are synchronized through the browser's storage event.
+The collection is stored under a versioned local-storage key. Each Pokémon can be caught only once, and every capture receives a UUID so a visitor can release that specific catch. Changes made in another open tab are synchronized through the browser's storage event.
 
 Collections are isolated by browser profile and site origin. Clearing site data removes the collection, and Vercel preview URLs do not share collections with the production URL or with one another.
 
