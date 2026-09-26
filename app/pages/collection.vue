@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CapturedPokemon, CollectionResponse, PokemonCardDetails } from '#shared/types/pokemon'
+import type { CapturedPokemon, PokemonCardDetails } from '#shared/types/pokemon'
 import { formatPokemonName } from '#shared/utils/pokemon'
 
 useSeoMeta({
@@ -7,18 +7,18 @@ useSeoMeta({
   description: 'Review the Pokémon you have caught and manage your personal collection.',
 })
 
-const { data, status, error, refresh } = useFetch<CollectionResponse>('/api/collection', {
-  server: false,
-  default: () => ({ pokemonCollection: [] }),
-})
+const {
+  pokemonCollection,
+  status,
+  loadError,
+  removePokemon,
+} = usePokemonCollection()
 
 const selectedPokemon = ref<CapturedPokemon | null>(null)
 const detailsOpen = ref(false)
 const confirmationOpen = ref(false)
 const isReleasing = ref(false)
 const releaseError = ref('')
-
-const pokemonCollection = computed(() => data.value.pokemonCollection)
 
 function cardDetails(pokemon: CapturedPokemon): PokemonCardDetails {
   return {
@@ -42,17 +42,14 @@ function closeDetails(): void {
   selectedPokemon.value = null
 }
 
-async function releasePokemon(): Promise<void> {
+function releasePokemon(): void {
   if (!selectedPokemon.value || isReleasing.value) return
 
   isReleasing.value = true
   releaseError.value = ''
 
   try {
-    await $fetch(`/api/collection/${selectedPokemon.value.captureId}`, {
-      method: 'DELETE',
-    })
-    await refresh()
+    removePokemon(selectedPokemon.value.captureId)
     closeDetails()
   }
   catch {
@@ -89,12 +86,12 @@ async function releasePokemon(): Promise<void> {
         <NuxtLink class="text-link" to="/">Catch more <span aria-hidden="true">→</span></NuxtLink>
       </div>
 
-      <div v-if="status === 'pending' || status === 'idle'" class="initial-loader" role="status">
+      <div v-if="status === 'idle'" class="initial-loader" role="status">
         <span class="pokeball-loader" aria-hidden="true" />
         <p>Checking your Poké Balls…</p>
       </div>
 
-      <div v-else-if="error" class="empty-state empty-state--error" role="alert">
+      <div v-else-if="loadError" class="empty-state empty-state--error" role="alert">
         <span class="empty-state__icon" aria-hidden="true">!</span>
         <h2>We couldn’t open your collection.</h2>
         <p>Please refresh the page and try again.</p>

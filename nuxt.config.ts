@@ -19,16 +19,6 @@ export default defineNuxtConfig({
     },
   },
 
-  runtimeConfig: {
-    databasePath: 'data/priority-pokemon.sqlite',
-  },
-
-  nitro: {
-    externals: {
-      external: ['better-sqlite3'],
-    },
-  },
-
   typescript: {
     strict: true,
     typeCheck: true,

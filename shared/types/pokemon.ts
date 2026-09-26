@@ -54,9 +54,5 @@ export interface NewCapturedPokemon {
 }
 
 export interface CapturedPokemon extends NewCapturedPokemon {
-  captureId: number
-}
-
-export interface CollectionResponse {
-  pokemonCollection: CapturedPokemon[]
+  captureId: string
 }

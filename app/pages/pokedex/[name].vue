@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CapturedPokemon, PokeApiPokemon } from '#shared/types/pokemon'
+import type { PokeApiPokemon } from '#shared/types/pokemon'
 import {
   createCapturedPokemon,
   formatPokemonName,
@@ -18,6 +18,7 @@ const showShiny = ref(false)
 const isCatching = ref(false)
 const catchMessage = ref('')
 const catchError = ref('')
+const { addPokemon } = usePokemonCollection()
 
 const formattedName = computed(() => formatPokemonName(pokemon.value?.name ?? pokemonName.value))
 const isGrassType = computed(() => pokemon.value ? hasPokemonType(pokemon.value, 'grass') : false)
@@ -42,7 +43,7 @@ useSeoMeta({
     : 'View a detailed Pokémon entry.',
 })
 
-async function catchPokemon(): Promise<void> {
+function catchPokemon(): void {
   if (!pokemon.value || isCatching.value) return
 
   isCatching.value = true
@@ -51,10 +52,7 @@ async function catchPokemon(): Promise<void> {
 
   try {
     const capturedPokemon = createCapturedPokemon(pokemon.value)
-    await $fetch<CapturedPokemon>('/api/collection', {
-      method: 'POST',
-      body: capturedPokemon,
-    })
+    addPokemon(capturedPokemon)
     catchMessage.value = `${formattedName.value} was added to your collection!`
   }
   catch {

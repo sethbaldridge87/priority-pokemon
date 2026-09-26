@@ -1,10 +1,10 @@
 # Priority Pokémon
 
-A Pokémon-themed single-page application built with Nuxt 4, Vue, TypeScript, PokéAPI, and SQLite. Visitors can browse the Pokédex in batches of 50, view detailed entries, catch Pokémon, and manage a private browser-specific collection without creating an account.
+A Pokémon-themed single-page application built with Nuxt 4, Vue, TypeScript, PokéAPI, and browser local storage. Visitors can browse the Pokédex in batches of 50, view detailed entries, catch Pokémon, and manage a private browser-specific collection without creating an account.
 
-## Why Nitro instead of Express?
+## Why browser local storage?
 
-Nuxt already includes Nitro, a production-ready Node.js server with file-based API routes. Adding Express would introduce a second server, a second router, proxy configuration, and duplicated development tooling. Nitro handles the three collection endpoints directly while preserving a single Nuxt build and deployment artifact.
+The collection belongs to one browser rather than a signed-in account, so it does not require a server database. Captures are validated and saved directly in local storage, which keeps the application simple and compatible with Vercel's ephemeral serverless filesystem.
 
 ## Getting started
 
@@ -16,14 +16,6 @@ npm run dev
 ```
 
 Open `http://localhost:3000`.
-
-Optional environment configuration:
-
-```bash
-copy .env.example .env
-```
-
-`NUXT_DATABASE_PATH` can be an absolute path or a path relative to the project root. The default database is `data/priority-pokemon.sqlite`.
 
 ## Commands
 
@@ -40,13 +32,18 @@ npm run preview    # preview the production build
 - `app/pages/index.vue` loads 50 Pokémon at a time and preserves already loaded results in Nuxt state.
 - `app/components/PokemonCard.vue` receives the Pokémon name and loads that Pokémon’s ID and Home sprite.
 - `app/pages/pokedex/[name].vue` renders detailed slug pages and builds the captured Pokémon payload.
-- `server/api/collection/` exposes `GET`, `POST`, and `DELETE` endpoints.
-- `server/utils/collection-repository.ts` owns all SQLite access.
-- `shared/` contains the types and pure utilities used by both the Vue app and server.
+- `app/composables/usePokemonCollection.ts` exposes reactive collection state and collection actions.
+- `app/utils/collection-storage.ts` owns local-storage reads and writes.
+- `shared/schemas/collection.ts` validates captured and persisted Pokémon data.
+- `shared/` contains types, schemas, and pure utilities used throughout the application.
 
-Each browser receives a random, HTTP-only visitor cookie. Collection rows are keyed by that anonymous ID in SQLite, giving each visitor an isolated collection without accounts or personal data. Clearing browser cookies starts a new anonymous collection. Duplicate catches are intentionally allowed, and every capture receives its own ID so a visitor can release one specific catch.
+The collection is stored under a versioned local-storage key. Duplicate catches are intentionally allowed, and every capture receives a UUID so a visitor can release one specific catch. Changes made in another open tab are synchronized through the browser's storage event.
 
-The production output requires a persistent filesystem for SQLite. Deploy it as a Node server (for example, a VM or container with a mounted data volume), not to an ephemeral edge-function filesystem.
+Collections are isolated by browser profile and site origin. Clearing site data removes the collection, and Vercel preview URLs do not share collections with the production URL or with one another.
+
+## Deployment
+
+Vercel detects Nuxt automatically. Use the default `npm run build` command; the collection does not require environment variables, server routes, or persistent server storage.
 
 ## Data source
 

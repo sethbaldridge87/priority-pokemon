@@ -6,11 +6,8 @@
 node_modules
 *.log
 
-# Local environment and data
+# Local environment
 .env
-data/*.sqlite
-data/*.sqlite-shm
-data/*.sqlite-wal
 
 # Editor and OS files
 .DS_Store
